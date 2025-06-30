@@ -93,15 +93,15 @@ with st.expander("📊 Escalation Dashboard", expanded=False):
             ax2.set_xlabel("Keyword")
             ax2.set_ylabel("Count")
             st.pyplot(fig2)
+        st.download_button(
+            "📥 Download Log",
+            data=log_df.to_csv(index=False),
+            file_name="memory_agent_log.csv",
+            mime="text/csv"
+        )
 
-            st.download_button(
-        "📥 Download Log",
-        data=log_df.to_csv(index=False),
-        file_name="memory_agent_log.csv",
-        mime="text/csv"
-    )
-else:
-    st.info("No complaints submitted yet.")
+    else:
+        st.info("No complaints submitted yet.")
 
 
 # SECTION 3: CSV Upload
