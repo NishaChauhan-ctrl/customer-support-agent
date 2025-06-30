@@ -100,8 +100,8 @@ with st.expander("📊 Escalation Dashboard", expanded=False):
         file_name="memory_agent_log.csv",
         mime="text/csv"
     )
-        else:
-        st.info("No complaints submitted yet.")
+else:
+    st.info("No complaints submitted yet.")
 
 
 # SECTION 3: CSV Upload
