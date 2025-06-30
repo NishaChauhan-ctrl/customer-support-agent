@@ -32,7 +32,7 @@ def generate_response(complaint, history=[]):
 
     if history:
         context = f"Previously, this user reported: “{'; '.join(history[-2:])}”\n\n"
-        else:
+    else:
         context = ""
 
     return f"{context}{empathy}\n\nWe'll look into this and follow up as needed.\n\n➡️ {escalation}"
