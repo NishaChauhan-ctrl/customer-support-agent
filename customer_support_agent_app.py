@@ -2,7 +2,7 @@
 import streamlit as st
 import pandas as pd
 import random
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plta
 from collections import Counter, defaultdict
 
 # Sample complaints
@@ -49,7 +49,8 @@ if "user_memory" not in st.session_state:
     st.session_state.user_memory = defaultdict(list)
 
 # SECTION 1: Single complaint input
-st.header("📥 Submit a Complaint")
+with st.expander("📥 Submit a Complaint", expanded=True):
+    st.markdown("Enter a user ID and a message. The AI will remember past complaints to generate a smart reply.")
 user_id = st.text_input("User ID", value="U001")
 user_input = st.text_area("Complaint text", value=random.choice([x[1] for x in sample_data]), height=100)
 
@@ -70,26 +71,31 @@ if st.button("Generate Reply"):
     })
 
 # SECTION 2: Escalation dashboard
-st.header("📊 Live Escalation Dashboard")
+with st.expander("📊 Escalation Dashboard", expanded=False):
+    st.markdown("See escalation rates and top complaint triggers across sessions.")
 
 log_df = pd.DataFrame(st.session_state.complaint_log)
 if not log_df.empty:
-    fig1, ax1 = plt.subplots()
-    counts = log_df["escalated"].value_counts()
-    labels = ["Escalated" if val else "Not Escalated" for val in counts.index]
-    ax1.pie(counts, labels=labels, autopct="%1.1f%%", startangle=90)
-    ax1.set_title("Escalation Rate")
-    st.pyplot(fig1)
+    col1, col2 = st.columns(2)
 
-    kw_series = log_df[log_df["escalated"]]["trigger_keyword"].dropna().astype(str)
-    kw_counts = Counter(kw_series)
-    if kw_counts:
-        fig2, ax2 = plt.subplots()
-        ax2.bar(list(kw_counts.keys()), list(kw_counts.values()))
-        ax2.set_title("Top Escalation Trigger Keywords")
-        ax2.set_xlabel("Keyword")
-        ax2.set_ylabel("Count")
-        st.pyplot(fig2)
+    with col1:
+        fig1, ax1 = plt.subplots(figsize=(4, 4))
+        counts = log_df["escalated"].value_counts()
+        labels = ["Escalated" if val else "Not Escalated" for val in counts.index]
+        ax1.pie(counts, labels=labels, autopct="%1.1f%%", startangle=90)
+        ax1.set_title("Escalation Rate")
+        st.pyplot(fig1)
+
+    with col2:
+        kw_series = log_df[log_df["escalated"]]["trigger_keyword"].dropna().astype(str)
+        kw_counts = Counter(kw_series)
+        if kw_counts:
+            fig2, ax2 = plt.subplots(figsize=(5, 4))
+            ax2.bar(list(kw_counts.keys()), list(kw_counts.values()))
+            ax2.set_title("Top Escalation Trigger Keywords")
+            ax2.set_xlabel("Keyword")
+            ax2.set_ylabel("Count")
+            st.pyplot(fig2)
 
     st.download_button(
         "📥 Download Log",
@@ -101,7 +107,8 @@ else:
     st.info("No complaints submitted yet.")
 
 # SECTION 3: CSV Upload
-st.header("📁 Upload CSV for Batch Processing (with memory)")
+with st.expander("📁 Upload CSV for Batch Processing", expanded=False):
+    st.markdown("Upload a CSV with `user_id` and `text` to get batch replies with escalation logic and memory context.")
 
 uploaded_file = st.file_uploader("Upload a CSV with 'user_id' and 'text' columns", type=["csv"])
 if uploaded_file:
@@ -128,7 +135,7 @@ if uploaded_file:
 
             result_df = pd.DataFrame(outputs)
             st.success("Batch completed!")
-            st.dataframe(result_df[["user_id", "text", "agent_reply", "escalated", "trigger_keyword"]])
+            st.dataframe(result_df[["user_id", "text", "agent_reply", "escalated", "trigger_keyword"]], use_container_width=True)
             st.download_button(
                 "📥 Download Batch Results",
                 data=result_df.to_csv(index=False),
