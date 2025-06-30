@@ -53,7 +53,6 @@ with st.expander("📥 Submit a Complaint", expanded=True):
     user_input = st.text_area("Complaint text", value=random.choice([x[1] for x in sample_data]), height=100)
 
     if st.button("Generate Reply"):
-    if st.button("Generate Reply"):
         history = st.session_state.user_memory[user_id]
         reply = generate_response(user_input, history)
         st.success(reply)
