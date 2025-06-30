@@ -26,7 +26,7 @@ def generate_response(complaint, history=[]):
     if should_escalate(complaint):
         escalation = "✅ Escalation triggered"
         empathy = "I'm really sorry you experienced this — it sounds incredibly frustrating."
-        else:
+    else:
         escalation = "No escalation needed"
         empathy = "Thanks for your feedback! I’d be happy to help with that."
 
