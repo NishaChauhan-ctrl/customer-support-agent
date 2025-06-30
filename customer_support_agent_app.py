@@ -2,7 +2,7 @@
 import streamlit as st
 import pandas as pd
 import random
-import matplotlib.pyplot as plta
+import matplotlib.pyplot as plt
 from collections import Counter, defaultdict
 
 # Sample complaints
