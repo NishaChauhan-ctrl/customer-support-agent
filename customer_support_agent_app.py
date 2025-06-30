@@ -26,13 +26,13 @@ def generate_response(complaint, history=[]):
     if should_escalate(complaint):
         escalation = "✅ Escalation triggered"
         empathy = "I'm really sorry you experienced this — it sounds incredibly frustrating."
-    else:
+        else:
         escalation = "No escalation needed"
         empathy = "Thanks for your feedback! I’d be happy to help with that."
 
     if history:
         context = f"Previously, this user reported: “{'; '.join(history[-2:])}”\n\n"
-    else:
+        else:
         context = ""
 
     return f"{context}{empathy}\n\nWe'll look into this and follow up as needed.\n\n➡️ {escalation}"
@@ -51,17 +51,17 @@ if "user_memory" not in st.session_state:
 # SECTION 1: Single complaint input
 with st.expander("📥 Submit a Complaint", expanded=True):
     st.markdown("Enter a user ID and a message. The AI will remember past complaints to generate a smart reply.")
-user_id = st.text_input("User ID", value="U001")
-user_input = st.text_area("Complaint text", value=random.choice([x[1] for x in sample_data]), height=100)
+    user_id = st.text_input("User ID", value="U001")
+    user_input = st.text_area("Complaint text", value=random.choice([x[1] for x in sample_data]), height=100)
 
-if st.button("Generate Reply"):
+    if st.button("Generate Reply"):
     history = st.session_state.user_memory[user_id]
     reply = generate_response(user_input, history)
-    st.success(reply)
+        st.success(reply)
 
-    # Update memory + log
-    st.session_state.user_memory[user_id].append(user_input)
-    st.session_state.complaint_log.append({
+            # Update memory + log
+        st.session_state.user_memory[user_id].append(user_input)
+        st.session_state.complaint_log.append({
         "user_id": user_id,
         "text": user_input,
         "history": "; ".join(history[-2:]),
@@ -74,9 +74,9 @@ if st.button("Generate Reply"):
 with st.expander("📊 Escalation Dashboard", expanded=False):
     st.markdown("See escalation rates and top complaint triggers across sessions.")
 
-log_df = pd.DataFrame(st.session_state.complaint_log)
-if not log_df.empty:
-    col1, col2 = st.columns(2)
+    log_df = pd.DataFrame(st.session_state.complaint_log)
+    if not log_df.empty:
+        col1, col2 = st.columns(2)
 
     with col1:
         fig1, ax1 = plt.subplots(figsize=(4, 4))
@@ -97,26 +97,27 @@ if not log_df.empty:
             ax2.set_ylabel("Count")
             st.pyplot(fig2)
 
-    st.download_button(
+            st.download_button(
         "📥 Download Log",
         data=log_df.to_csv(index=False),
         file_name="memory_agent_log.csv",
         mime="text/csv"
     )
 else:
-    st.info("No complaints submitted yet.")
+        else:
+        st.info("No complaints submitted yet.")
 
 # SECTION 3: CSV Upload
 with st.expander("📁 Upload CSV for Batch Processing", expanded=False):
     st.markdown("Upload a CSV with `user_id` and `text` to get batch replies with escalation logic and memory context.")
 
-uploaded_file = st.file_uploader("Upload a CSV with 'user_id' and 'text' columns", type=["csv"])
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-    if not {"user_id", "text"}.issubset(df.columns):
+    uploaded_file = st.file_uploader("Upload a CSV with 'user_id' and 'text' columns", type=["csv"])
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file)
+        if not {"user_id", "text"}.issubset(df.columns):
         st.error("CSV must contain 'user_id' and 'text' columns.")
-    else:
-        with st.spinner("Processing batch..."):
+        else:
+            with st.spinner("Processing batch..."):
             outputs = []
             for _, row in df.iterrows():
                 uid = row["user_id"]
@@ -133,10 +134,10 @@ if uploaded_file:
                     "trigger_keyword": next((kw for kw in ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"] if kw in text.lower()), "")
                 })
 
-            result_df = pd.DataFrame(outputs)
-            st.success("Batch completed!")
-            st.dataframe(result_df[["user_id", "text", "agent_reply", "escalated", "trigger_keyword"]], use_container_width=True)
-            st.download_button(
+                result_df = pd.DataFrame(outputs)
+                st.success("Batch completed!")
+                st.dataframe(result_df[["user_id", "text", "agent_reply", "escalated", "trigger_keyword"]], use_container_width=True)
+                    st.download_button(
                 "📥 Download Batch Results",
                 data=result_df.to_csv(index=False),
                 file_name="batch_responses_with_memory.csv",
