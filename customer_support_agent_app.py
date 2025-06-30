@@ -23,7 +23,6 @@ def should_escalate(text):
 
 # Memory-aware agent reply
 def generate_response(complaint, history=[]):
-def generate_response(complaint, history=[]):
     if should_escalate(complaint):
         escalation = "✅ Escalation triggered"
         empathy = "I'm really sorry you experienced this — it sounds incredibly frustrating."
