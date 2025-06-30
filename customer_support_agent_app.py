@@ -26,13 +26,13 @@ def generate_response(complaint, history=[]):
     if should_escalate(complaint):
         escalation = "✅ Escalation triggered"
         empathy = "I'm really sorry you experienced this — it sounds incredibly frustrating."
-    else:
+        else:
         escalation = "No escalation needed"
         empathy = "Thanks for your feedback! I’d be happy to help with that."
 
     if history:
         context = f"Previously, this user reported: “{'; '.join(history[-2:])}”\n\n"
-    else:
+        else:
         context = ""
 
     return f"{context}{empathy}\n\nWe'll look into this and follow up as needed.\n\n➡️ {escalation}"
@@ -55,11 +55,11 @@ with st.expander("📥 Submit a Complaint", expanded=True):
     user_input = st.text_area("Complaint text", value=random.choice([x[1] for x in sample_data]), height=100)
 
     if st.button("Generate Reply"):
+    if st.button("Generate Reply"):
         history = st.session_state.user_memory[user_id]
         reply = generate_response(user_input, history)
         st.success(reply)
-
-            # Update memory + log
+        # Update memory + log
         st.session_state.user_memory[user_id].append(user_input)
         st.session_state.complaint_log.append({
         "user_id": user_id,
@@ -103,7 +103,6 @@ with st.expander("📊 Escalation Dashboard", expanded=False):
         file_name="memory_agent_log.csv",
         mime="text/csv"
     )
-else:
         else:
         st.info("No complaints submitted yet.")
 
