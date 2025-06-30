@@ -75,15 +75,15 @@ with st.expander("📊 Escalation Dashboard", expanded=False):
     if not log_df.empty:
         col1, col2 = st.columns(2)
 
-    with col1:
-        fig1, ax1 = plt.subplots(figsize=(4, 4))
-        counts = log_df["escalated"].value_counts()
-        labels = ["Escalated" if val else "Not Escalated" for val in counts.index]
-        ax1.pie(counts, labels=labels, autopct="%1.1f%%", startangle=90)
-        ax1.set_title("Escalation Rate")
-        st.pyplot(fig1)
+        with col1:
+            fig1, ax1 = plt.subplots(figsize=(4, 4))
+            counts = log_df["escalated"].value_counts()
+            labels = ["Escalated" if val else "Not Escalated" for val in counts.index]
+            ax1.pie(counts, labels=labels, autopct="%1.1f%%", startangle=90)
+            ax1.set_title("Escalation Rate")
+            st.pyplot(fig1)
 
-    with col2:
+        with col2:
         kw_series = log_df[log_df["escalated"]]["trigger_keyword"].dropna().astype(str)
         kw_counts = Counter(kw_series)
         if kw_counts:
