@@ -93,25 +93,25 @@ with st.expander("📊 Escalation Dashboard", expanded=False):
             ax2.set_xlabel("Keyword")
             ax2.set_ylabel("Count")
             st.pyplot(fig2)
+    if not log_df.empty:
+        st.subheader("📊 Complaint Log Summary")
+        st.write(log_df.tail(10))
+        fig1, ax1 = plt.subplots(figsize=(4, 3))
+        log_df["escalated"].value_counts().plot(kind="bar", ax=ax1, title="Escalations")
+        st.pyplot(fig1)
+        fig2, ax2 = plt.subplots(figsize=(4, 3))
+        kw_counts = Counter(log_df["category"])
+        ax2.bar(kw_counts.keys(), kw_counts.values())
+        ax2.set_title("Complaint Categories")
+        st.pyplot(fig2)
         st.download_button(
             "📥 Download Log",
             data=log_df.to_csv(index=False),
             file_name="memory_agent_log.csv",
             mime="text/csv"
         )
-
     else:
         st.info("No complaints submitted yet.")
-
-
-# SECTION 3: CSV Upload
-with st.expander("📁 Upload CSV for Batch Processing", expanded=False):
-    st.markdown("Upload a CSV with `user_id` and `text` to get batch replies with escalation logic and memory context.")
-
-    uploaded_file = st.file_uploader("Upload a CSV with 'user_id' and 'text' columns", type=["csv"])
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        if not {"user_id", "text"}.issubset(df.columns):
         st.error("CSV must contain 'user_id' and 'text' columns.")
         else:
             with st.spinner("Processing batch..."):
