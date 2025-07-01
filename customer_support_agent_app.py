@@ -12,6 +12,25 @@ with col_title:
     st.markdown("*AI assistant for triaging complaints, escalating critical issues, and crafting empathetic replies.*")
 
 
+# --- Onboarding & App Intro ---
+with st.expander("ℹ️ What does SupportGenie do?", expanded=True):
+    st.markdown("""
+**SupportGenie** is an AI-powered assistant that helps support teams:
+- 📝 Receive and log complaints from users
+- 🤖 Generate empathetic replies using AI (based on tone)
+- 🚨 Escalate complaints automatically when trigger words are detected
+- 📊 Track complaints, reply effectiveness, and team performance
+
+**How It Works**
+- **NPS** = Net Promoter Score (user sentiment, from 0–10)
+- **Escalation** = complaint contains a risky/urgent keyword (like “refund” or “crash”)
+- **Tone Selector** = lets you control how the AI replies (friendly, concise, empathetic)
+- **User Memory** = the agent remembers what each user has said in the past
+
+You can test the app by submitting a fake complaint below 👇
+""")
+
+
 
 # Agent tone selector
 st.sidebar.header("🎭 Agent Personality")
@@ -21,10 +40,19 @@ persona = st.sidebar.selectbox(
 )
 
 # Sidebar for escalation keyword configuration
+
+# Sidebar for escalation keyword configuration
 st.sidebar.header("🛠 Escalation Settings")
 default_keywords = "refund, cancel, crash, bug, lawsuit, fraud"
 if "escalation_keywords" not in st.session_state:
     st.session_state["escalation_keywords"] = [k.strip().lower() for k in default_keywords.split(",")]
+
+keyword_input = st.sidebar.text_input(
+    "Trigger Keywords (used to auto-escalate)",
+    value=", ".join(st.session_state["escalation_keywords"])
+)
+st.session_state["escalation_keywords"] = [k.strip().lower() for k in keyword_input.split(",")]
+
 
 keyword_input = st.sidebar.text_input(
     "Trigger Keywords (comma-separated)",
