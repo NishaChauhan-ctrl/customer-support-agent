@@ -297,3 +297,17 @@ with tab3:
         )
     else:
         st.info("No complaints submitted yet.")
+
+# --- Feedback Metrics Section ---
+if "feedback_log" in st.session_state and st.session_state["feedback_log"]:
+    with st.expander("📊 Agent Feedback Summary", expanded=True):
+        feedback_df = pd.DataFrame(st.session_state["feedback_log"])
+        helpful_pct = 100 * feedback_df["helpful"].mean()
+        st.metric("👍 Helpful Replies", f"{helpful_pct:.1f}%")
+
+        feedback_df["timestamp"] = pd.to_datetime(feedback_df["timestamp"])
+        feedback_chart = feedback_df.groupby(feedback_df["timestamp"].dt.date)["helpful"].mean() * 100
+        st.line_chart(feedback_chart, use_container_width=True)
+else:
+    with st.expander("📊 Agent Feedback Summary", expanded=True):
+        st.info("No feedback yet. Users can rate replies with 👍 or 👎.")
