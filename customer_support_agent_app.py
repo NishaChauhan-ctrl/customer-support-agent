@@ -90,6 +90,14 @@ with tab1:
         st.markdown(styled_badge, unsafe_allow_html=True)
         st.success(reply)
 
+        feedback_col1, feedback_col2 = st.columns([1, 1])
+        with feedback_col1:
+            if st.button("👍", key=f"up_{timestamp}"):
+                st.session_state.complaint_log[-1]["feedback"] = "up"
+        with feedback_col2:
+            if st.button("👎", key=f"down_{timestamp}"):
+                st.session_state.complaint_log[-1]["feedback"] = "down"
+
         st.session_state.user_memory[user_id].append(user_input)
         st.session_state.complaint_log.append({
             "ticket_id": f"TKT{len(st.session_state.complaint_log)+1:04}",
@@ -98,6 +106,7 @@ with tab1:
             "text": user_input,
             "history": "; ".join(history[-2:]),
             "agent_reply": reply,
+            "feedback": None,  # thumbs up/down placeholder
             "escalated": escalate_flag,
             "trigger_keyword": next((kw for kw in ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"] if kw in user_input.lower()), "")
         })
@@ -140,6 +149,7 @@ with tab2:
                             "text": text,
                             "history": "; ".join(hist[-2:]),
                             "agent_reply": reply,
+            "feedback": None,  # thumbs up/down placeholder
                             "escalated": should_escalate(text),
                             "trigger_keyword": next((kw for kw in ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"] if kw in text.lower()), "")
                         })
@@ -181,7 +191,8 @@ with tab3:
                 ax2.set_ylabel("Count")
                 st.pyplot(fig2)
 
-        st.dataframe(log_df[["ticket_id", "timestamp", "user_id", "text", "agent_reply", "escalated", "trigger_keyword"]])
+        log_df_display = log_df[["ticket_id", "timestamp", "user_id", "text", "agent_reply", "escalated", "trigger_keyword", "feedback"]]
+        st.dataframe(log_df_display)"ticket_id", "timestamp", "user_id", "text", "agent_reply", "escalated", "trigger_keyword"]])
         st.download_button(
             "📥 Download Complaint Log",
             data=log_df.to_csv(index=False),
