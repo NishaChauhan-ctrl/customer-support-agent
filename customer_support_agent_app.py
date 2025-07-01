@@ -5,7 +5,12 @@ from collections import Counter
 import random
 from datetime import datetime
 
-# Initialize memory and logs
+# ---------- Branding ----------
+st.set_page_config(page_title="AI Support Agent", page_icon="🤖", layout="wide")
+st.markdown("<h1 style='text-align:center; color:#4A90E2;'>🤖 AI-Powered Customer Support Agent</h1>", unsafe_allow_html=True)
+st.markdown("<hr>", unsafe_allow_html=True)
+
+# ---------- Session State ----------
 if "user_memory" not in st.session_state:
     st.session_state.user_memory = {}
 
@@ -36,7 +41,7 @@ def should_escalate(text):
     escalation_keywords = ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"]
     return any(kw in text.lower() for kw in escalation_keywords)
 
-# Create tab layout
+# ---------- TABS ----------
 tab1, tab2, tab3 = st.tabs(["📥 Live Complaints", "📁 Batch Upload", "📊 Dashboard"])
 
 with tab1:
@@ -48,6 +53,13 @@ with tab1:
         timestamp = datetime.now().isoformat(timespec='seconds')
         history = st.session_state.user_memory[user_id]
         reply = generate_response(user_input, history)
+        escalate_flag = should_escalate(user_input)
+
+        badge_color = "#F44336" if escalate_flag else "#4CAF50"
+        badge_label = "🚨 Escalated" if escalate_flag else "✅ Resolved"
+        styled_badge = f"<span style='color:white; background-color:{badge_color}; padding:4px 8px; border-radius:5px;'>{badge_label}</span>"
+
+        st.markdown(styled_badge, unsafe_allow_html=True)
         st.success(reply)
 
         st.session_state.user_memory[user_id].append(user_input)
@@ -58,7 +70,7 @@ with tab1:
             "text": user_input,
             "history": "; ".join(history[-2:]),
             "agent_reply": reply,
-            "escalated": should_escalate(user_input),
+            "escalated": escalate_flag,
             "trigger_keyword": next((kw for kw in ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"] if kw in user_input.lower()), "")
         })
 
@@ -131,7 +143,7 @@ with tab3:
             kw_counts = Counter(kw_series)
             if kw_counts:
                 fig2, ax2 = plt.subplots(figsize=(5, 4))
-                ax2.bar(list(kw_counts.keys()), list(kw_counts.values()))
+                ax2.bar(list(kw_counts.keys()), list(kw_counts.values()), color="#4A90E2")
                 ax2.set_title("Top Escalation Keywords")
                 ax2.set_xlabel("Keyword")
                 ax2.set_ylabel("Count")
