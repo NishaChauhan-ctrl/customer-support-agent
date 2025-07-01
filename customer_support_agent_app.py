@@ -8,20 +8,37 @@ st.set_page_config(page_title="SupportGenie - AI Customer Agent", layout="wide")
 
 # --- Theme toggle ---
 theme = st.sidebar.selectbox("🎨 Select Theme", ["Light", "Dark", "SupportGenie"])
+
 if theme == "Dark":
     st.markdown("""
         <style>
-        body { background-color: #0e1117; color: white; }
-        .stApp { background-color: #0e1117; }
+        .main {
+            background-color: #0e1117;
+            color: white;
+        }
+        .stTextInput > div > input,
+        .stTextArea textarea {
+            background-color: #262730;
+            color: white;
+        }
         </style>
     """, unsafe_allow_html=True)
+
 elif theme == "SupportGenie":
     st.markdown("""
         <style>
-        body { background-color: #f0f6ff; color: #112a46; }
-        .stApp { background-color: #f0f6ff; }
+        .main {
+            background-color: #f0f6ff;
+            color: #112a46;
+        }
+        .stTextInput > div > input,
+        .stTextArea textarea {
+            background-color: #ffffff;
+            color: #112a46;
+        }
         </style>
     """, unsafe_allow_html=True)
+
 
 # Logo and title
 st.image("supportgenie_logo.png", width=80)
