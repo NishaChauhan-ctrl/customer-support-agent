@@ -94,38 +94,44 @@ with st.expander("📊 Escalation Dashboard", expanded=False):
         st.info("No complaints submitted yet.")
 
 # SECTION 3: Batch CSV Upload
+# SECTION 3: Batch CSV Upload
 with st.expander("📁 Upload CSV for Batch Processing", expanded=False):
-    st.markdown("Upload a CSV with `user_id` and `text` to get batch replies with escalation logic and memory context.")
-    uploaded_file = st.file_uploader("Upload a CSV with 'user_id' and 'text' columns", type=["csv"])
+    st.markdown("Upload a CSV with `user_id` and `text` columns (or select equivalent columns manually).")
+    uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
 
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
-        if not {"user_id", "text"}.issubset(df.columns):
-            st.error("CSV must contain 'user_id' and 'text' columns.")
+        if df.empty:
+            st.error("Uploaded CSV is empty.")
         else:
-            with st.spinner("Processing batch..."):
-                outputs = []
-                for _, row in df.iterrows():
-                    uid = row["user_id"]
-                    text = row["text"]
-                    hist = st.session_state.user_memory[uid]
-                    reply = generate_response(text, hist)
-                    st.session_state.user_memory[uid].append(text)
-                    outputs.append({
-                        "user_id": uid,
-                        "text": text,
-                        "history": "; ".join(hist[-2:]),
-                        "agent_reply": reply,
-                        "escalated": should_escalate(text),
-                        "trigger_keyword": next((kw for kw in ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"] if kw in text.lower()), "")
-                    })
+            columns = df.columns.tolist()
+            user_col = st.selectbox("Select the User ID column", columns, index=columns.index("user_id") if "user_id" in columns else 0)
+            text_col = st.selectbox("Select the Complaint Text column", columns, index=columns.index("text") if "text" in columns else 1)
 
-                result_df = pd.DataFrame(outputs)
-                st.success("Batch completed!")
-                st.dataframe(result_df[["user_id", "text", "agent_reply", "escalated", "trigger_keyword"]], use_container_width=True)
-                st.download_button(
-                    "📥 Download Batch Results",
-                    data=result_df.to_csv(index=False),
-                    file_name="batch_responses_with_memory.csv",
-                    mime="text/csv"
-                )
+            if st.button("Process Batch"):
+                with st.spinner("Processing..."):
+                    outputs = []
+                    for idx, row in df.iterrows():
+                        uid = str(row[user_col]) if pd.notnull(row[user_col]) else f"user_{idx}"
+                        text = row[text_col] if pd.notnull(row[text_col]) else ""
+                        hist = st.session_state.user_memory[uid]
+                        reply = generate_response(text, hist)
+                        st.session_state.user_memory[uid].append(text)
+                        outputs.append({
+                            "user_id": uid,
+                            "text": text,
+                            "history": "; ".join(hist[-2:]),
+                            "agent_reply": reply,
+                            "escalated": should_escalate(text),
+                            "trigger_keyword": next((kw for kw in ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"] if kw in text.lower()), "")
+                        })
+
+                    result_df = pd.DataFrame(outputs)
+                    st.success("Batch completed!")
+                    st.dataframe(result_df[["user_id", "text", "agent_reply", "escalated", "trigger_keyword"]], use_container_width=True)
+                    st.download_button(
+                        "📥 Download Batch Results",
+                        data=result_df.to_csv(index=False),
+                        file_name="batch_responses_with_memory.csv",
+                        mime="text/csv"
+                    )
