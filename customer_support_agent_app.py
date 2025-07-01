@@ -1,6 +1,14 @@
 import streamlit as st
 import pandas as pd
 
+
+# Agent tone selector
+st.sidebar.header("🎭 Agent Personality")
+persona = st.sidebar.selectbox(
+    "Choose a tone for the AI agent:",
+    ["Empathetic", "Concise", "Friendly"]
+)
+
 # Sidebar for escalation keyword configuration
 st.sidebar.header("🛠 Escalation Settings")
 default_keywords = "refund, cancel, crash, bug, lawsuit, fraud"
@@ -61,6 +69,15 @@ def ai_reply(text, history=[], api_key=None):
             return None
         openai.api_key = api_key
         prompt = f"You are a helpful support agent. A customer just wrote: '{text}'. Reply empathetically."
+        
+        tone_styles = {
+            "Empathetic": "Respond kindly and reassuringly, acknowledging user frustration.",
+            "Concise": "Respond briefly and to the point with clear next steps.",
+            "Friendly": "Be upbeat, casual, and helpful like a human support rep."
+        }
+        prompt_style = tone_styles.get(persona, "Respond helpfully.")
+
+
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
