@@ -1,5 +1,18 @@
 import streamlit as st
 import pandas as pd
+
+# Sidebar for escalation keyword configuration
+st.sidebar.header("🛠 Escalation Settings")
+default_keywords = "refund, cancel, crash, bug, lawsuit, fraud"
+if "escalation_keywords" not in st.session_state:
+    st.session_state["escalation_keywords"] = [k.strip().lower() for k in default_keywords.split(",")]
+
+keyword_input = st.sidebar.text_input(
+    "Trigger Keywords (comma-separated)",
+    value=", ".join(st.session_state["escalation_keywords"])
+)
+st.session_state["escalation_keywords"] = [k.strip().lower() for k in keyword_input.split(",")]
+
 import matplotlib.pyplot as plt
 from collections import Counter
 import random
