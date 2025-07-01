@@ -192,7 +192,7 @@ with tab3:
                 st.pyplot(fig2)
 
         log_df_display = log_df[["ticket_id", "timestamp", "user_id", "text", "agent_reply", "escalated", "trigger_keyword", "feedback"]]
-        st.dataframe(log_df_display)"ticket_id", "timestamp", "user_id", "text", "agent_reply", "escalated", "trigger_keyword"]])
+        st.dataframe(log_df_display, use_container_width=True)"ticket_id", "timestamp", "user_id", "text", "agent_reply", "escalated", "trigger_keyword"]])
         st.download_button(
             "📥 Download Complaint Log",
             data=log_df.to_csv(index=False),
