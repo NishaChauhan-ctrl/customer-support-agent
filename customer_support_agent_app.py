@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import random
 from datetime import datetime
+import openai
 
 # ---------- Branding ----------
 st.set_page_config(page_title="AI Support Agent", page_icon="🤖", layout="wide")
@@ -30,30 +31,57 @@ for user, _ in sample_data:
     if user not in st.session_state.user_memory:
         st.session_state.user_memory[user] = []
 
-def generate_response(complaint, history=[]):
-    if any(word in complaint.lower() for word in ["crash", "freeze", "data", "delete", "billing", "error"]):
-        return "I'm sorry to hear that. We're escalating your issue to our support team right away."
-    if "not working" in complaint.lower():
-        return "Thanks for reporting this. We'll investigate the issue shortly."
-    return "Thanks for your feedback! We'll look into it."
-
 def should_escalate(text):
     escalation_keywords = ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"]
     return any(kw in text.lower() for kw in escalation_keywords)
+
+def rule_based_reply(text, history=[]):
+    if any(word in text.lower() for word in ["crash", "freeze", "data", "delete", "billing", "error"]):
+        return "I'm sorry to hear that. We're escalating your issue to our support team right away."
+    if "not working" in text.lower():
+        return "Thanks for reporting this. We'll investigate the issue shortly."
+    return "Thanks for your feedback! We'll look into it."
+
+def ai_reply(text, history=[], api_key=None):
+    try:
+        if not api_key:
+            return None
+        openai.api_key = api_key
+        prompt = f"You are a helpful support agent. A customer just wrote: '{text}'. Reply empathetically."
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful and empathetic customer support agent."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response.choices[0].message["content"].strip()
+    except:
+        return None
 
 # ---------- TABS ----------
 tab1, tab2, tab3 = st.tabs(["📥 Live Complaints", "📁 Batch Upload", "📊 Dashboard"])
 
 with tab1:
     st.header("Submit a New Complaint")
+
+    st.subheader("🛠️ AI Settings")
+    use_ai = st.checkbox("Use AI model for reply")
+    api_key = st.text_input("OpenAI API Key (leave empty to test rule-based reply)", type="password")
+
     user_id = st.text_input("User ID", value="U001", help="Enter a unique identifier for the user")
     user_input = st.text_area("Complaint", value=random.choice([x[1] for x in sample_data]), height=100, help="Describe the issue or complaint here")
 
     if st.button("Generate Reply"):
         timestamp = datetime.now().isoformat(timespec='seconds')
         history = st.session_state.user_memory[user_id]
-        reply = generate_response(user_input, history)
         escalate_flag = should_escalate(user_input)
+
+        reply = None
+        if use_ai:
+            reply = ai_reply(user_input, history, api_key)
+        if not reply:
+            reply = rule_based_reply(user_input, history)
 
         badge_color = "#F44336" if escalate_flag else "#4CAF50"
         badge_label = "🚨 Escalated" if escalate_flag else "✅ Resolved"
@@ -98,7 +126,11 @@ with tab2:
                             st.session_state.user_memory[uid] = []
 
                         hist = st.session_state.user_memory[uid]
-                        reply = generate_response(text, hist)
+                        if use_ai and api_key:
+                            reply = ai_reply(text, hist, api_key)
+                        else:
+                            reply = rule_based_reply(text, hist)
+
                         st.session_state.user_memory[uid].append(text)
 
                         outputs.append({
