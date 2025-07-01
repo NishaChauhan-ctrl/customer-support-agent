@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import random
 
-# Sample responses for demonstration
 sample_data = [
     ("U001", "The app crashes when I try to upload files."),
     ("U002", "I’m getting billed twice every month."),
@@ -14,7 +13,6 @@ sample_data = [
     ("U006", "My data seems to have been wiped after the update.")
 ]
 
-# Initialize session state
 if "user_memory" not in st.session_state:
     st.session_state.user_memory = {}
 
@@ -36,7 +34,7 @@ def should_escalate(text):
     escalation_keywords = ["crash", "data", "billing", "error", "unresponsive", "delete", "lost", "freeze"]
     return any(kw in text.lower() for kw in escalation_keywords)
 
-# SECTION 1: Submit single complaint
+# SECTION 1: Single complaint
 with st.expander("📥 Submit a Complaint", expanded=True):
     st.markdown("Enter a user ID and a message. The AI will remember past complaints to generate a smart reply.")
     user_id = st.text_input("User ID", value="U001")
@@ -93,12 +91,11 @@ with st.expander("📊 Escalation Dashboard", expanded=False):
     else:
         st.info("No complaints submitted yet.")
 
-# SECTION 3: Batch CSV Upload
-# SECTION 3: Batch CSV Upload
+# SECTION 3: Flexible Batch Upload
 with st.expander("📁 Upload CSV for Batch Processing", expanded=False):
-    st.markdown("Upload a CSV with `user_id` and `text` columns (or select equivalent columns manually).")
-    uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
+    st.markdown("Upload a CSV with complaints. Select which columns map to user ID and complaint text.")
 
+    uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
         if df.empty:
@@ -114,9 +111,14 @@ with st.expander("📁 Upload CSV for Batch Processing", expanded=False):
                     for idx, row in df.iterrows():
                         uid = str(row[user_col]) if pd.notnull(row[user_col]) else f"user_{idx}"
                         text = row[text_col] if pd.notnull(row[text_col]) else ""
+
+                        if uid not in st.session_state.user_memory:
+                            st.session_state.user_memory[uid] = []
+
                         hist = st.session_state.user_memory[uid]
                         reply = generate_response(text, hist)
                         st.session_state.user_memory[uid].append(text)
+
                         outputs.append({
                             "user_id": uid,
                             "text": text,
