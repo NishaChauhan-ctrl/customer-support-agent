@@ -1,6 +1,17 @@
 import streamlit as st
 import pandas as pd
 
+# --- Branding ---
+st.set_page_config(page_title="SupportGenie", page_icon="🧞‍♂️", layout="wide")
+
+col_logo, col_title = st.columns([1, 5])
+with col_logo:
+    st.image("supportgenie_logo.png", width=80)
+with col_title:
+    st.markdown("## 🧞‍♂️ SupportGenie")
+    st.markdown("*AI assistant for triaging complaints, escalating critical issues, and crafting empathetic replies.*")
+
+
 
 # Agent tone selector
 st.sidebar.header("🎭 Agent Personality")
