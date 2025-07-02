@@ -6,39 +6,49 @@ import datetime
 
 st.set_page_config(page_title="SupportGenie - AI Customer Agent", layout="wide")
 
-# --- Theme toggle ---
-# --- Theme toggle (custom simulated themes only) ---
-theme = st.sidebar.radio("🎨 Theme", ["Light", "Dark"])
+# --- Theme toggle (simulated only) ---
+theme = st.sidebar.radio("🎨 Select Theme", ["Light", "Dark"])
+
+custom_css = """
+<style>
+/* Background and text */
+section.main {
+    background-color: VAR_BG !important;
+    color: VAR_TEXT !important;
+}
+
+/* Input fields */
+input, textarea, .stTextInput > div > input, .stTextArea textarea {
+    background-color: VAR_INPUT_BG !important;
+    color: VAR_INPUT_TEXT !important;
+}
+
+/* Misc */
+.st-bw, .st-cx, .stButton>button {
+    background-color: VAR_BTN_BG !important;
+    color: VAR_BTN_TEXT !important;
+    border: none;
+}
+</style>
+"""
 
 if theme == "Dark":
-    st.markdown("""
-        <style>
-        .main {
-            background-color: #0e1117;
-            color: white;
-        }
-        .stTextInput > div > input,
-        .stTextArea textarea {
-            background-color: #262730;
-            color: white;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    themed_css = custom_css.replace("VAR_BG", "#0e1117") \
+                           .replace("VAR_TEXT", "#FFFFFF") \
+                           .replace("VAR_INPUT_BG", "#262730") \
+                           .replace("VAR_INPUT_TEXT", "#FFFFFF") \
+                           .replace("VAR_BTN_BG", "#333333") \
+                           .replace("VAR_BTN_TEXT", "#FFFFFF")
+else:
+    themed_css = custom_css.replace("VAR_BG", "#f9fbfd") \
+                           .replace("VAR_TEXT", "#112a46") \
+                           .replace("VAR_INPUT_BG", "#FFFFFF") \
+                           .replace("VAR_INPUT_TEXT", "#112a46") \
+                           .replace("VAR_BTN_BG", "#dceeff") \
+                           .replace("VAR_BTN_TEXT", "#112a46")
 
-elif theme == "Light":
-    st.markdown("""
-        <style>
-        .main {
-            background-color: #f8faff;
-            color: #112a46;
-        }
-        .stTextInput > div > input,
-        .stTextArea textarea {
-            background-color: white;
-            color: #112a46;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+st.markdown(themed_css, unsafe_allow_html=True)
+
 
 
 # Logo and title
