@@ -7,7 +7,8 @@ import datetime
 st.set_page_config(page_title="SupportGenie - AI Customer Agent", layout="wide")
 
 # --- Theme toggle ---
-theme = st.sidebar.selectbox("🎨 Select Theme", ["Light", "Dark", "SupportGenie"])
+# --- Theme toggle (custom simulated themes only) ---
+theme = st.sidebar.radio("🎨 Theme", ["Light", "Dark"])
 
 if theme == "Dark":
     st.markdown("""
@@ -24,16 +25,16 @@ if theme == "Dark":
         </style>
     """, unsafe_allow_html=True)
 
-elif theme == "SupportGenie":
+elif theme == "Light":
     st.markdown("""
         <style>
         .main {
-            background-color: #f0f6ff;
+            background-color: #f8faff;
             color: #112a46;
         }
         .stTextInput > div > input,
         .stTextArea textarea {
-            background-color: #ffffff;
+            background-color: white;
             color: #112a46;
         }
         </style>
