@@ -46,26 +46,31 @@ with st.expander("📝 Submit a Complaint", expanded=True):
 
     if "generated_reply" in st.session_state:
         st.markdown("### ✏️ Edit AI Reply Before Logging:")
-        edited_reply = st.text_area("AI-generated reply:", value=st.session_state.generated_reply, height=100, key="editable_reply")
-        st.caption("⚠️ This reply is AI-generated. Please verify before sending.")
-        if st.button("Confirm and Log"):
-            complaint = st.session_state.current_complaint
-            reply = edited_reply
-            user_id = st.session_state.current_user_id
-            escalated = any(kw in complaint.lower() for kw in ["crash", "error", "not working", "urgent"])
-            keyword = next((kw for kw in ["crash", "error", "not working", "urgent"] if kw in complaint.lower()), "")
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            ticket_id = f"T{len(st.session_state.log_df)+1:04}"
-            new_row = {
-                "ticket_id": ticket_id,
-                "timestamp": timestamp,
-                "user_id": user_id,
-                "text": complaint,
-                "agent_reply": reply,
-                "escalated": escalated,
-                "trigger_keyword": keyword,
-                "feedback": None
-            }
-            st.session_state.log_df = pd.concat([st.session_state.log_df, pd.DataFrame([new_row])], ignore_index=True)
-            st.session_state.user_memory[user_id].append((complaint, reply))
-            del st.session_state.generated_reply
+        with st.form("confirm_reply_form"):
+            edited_reply = st.text_area("AI-generated reply:", value=st.session_state.generated_reply, height=100, key="editable_reply_form")
+            st.caption("⚠️ This reply is AI-generated. Please verify before sending.")
+            submit_confirm = st.form_submit_button("✅ Confirm and Log")
+            if submit_confirm:
+                complaint = st.session_state.current_complaint
+                reply = edited_reply
+                user_id = st.session_state.current_user_id
+                escalated = any(kw in complaint.lower() for kw in ["crash", "error", "not working", "urgent"])
+                keyword = next((kw for kw in ["crash", "error", "not working", "urgent"] if kw in complaint.lower()), "")
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                ticket_id = f"T{len(st.session_state.log_df)+1:04}"
+                new_row = {
+                    "ticket_id": ticket_id,
+                    "timestamp": timestamp,
+                    "user_id": user_id,
+                    "text": complaint,
+                    "agent_reply": reply,
+                    "escalated": escalated,
+                    "trigger_keyword": keyword,
+                    "feedback": None
+                }
+                st.session_state.log_df = pd.concat([st.session_state.log_df, pd.DataFrame([new_row])], ignore_index=True)
+                st.session_state.user_memory[user_id].append((complaint, reply))
+                del st.session_state.generated_reply
+                del st.session_state.current_user_id
+                del st.session_state.current_complaint
+                st.success("✅ Reply logged successfully.")
