@@ -74,3 +74,38 @@ with st.expander("📝 Submit a Complaint", expanded=True):
                 del st.session_state.current_user_id
                 del st.session_state.current_complaint
                 st.success("✅ Reply logged successfully.")
+
+# --- Feedback Viewer ---
+with st.expander("🧠 Feedback Summary", expanded=True):
+    df = st.session_state.log_df
+    if not df.empty:
+        st.subheader("👍👎 Rate Agent Replies")
+        for i, row in df[df["feedback"].isnull()].head(5).iterrows():
+            st.markdown(f"**{row['agent_reply']}**")
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(f"👍 Helpful ({row['ticket_id']})"):
+                    st.session_state.log_df.at[i, "feedback"] = "positive"
+            with col2:
+                if st.button(f"👎 Unhelpful ({row['ticket_id']})"):
+                    st.session_state.log_df.at[i, "feedback"] = "negative"
+
+        feedback_counts = df["feedback"].value_counts()
+        st.subheader("📊 Feedback Stats")
+        if not feedback_counts.empty:
+            fig, ax = plt.subplots(figsize=(3, 3))
+            ax.pie(feedback_counts.values, labels=feedback_counts.index, autopct='%1.1f%%', startangle=90)
+            ax.axis('equal')
+            st.pyplot(fig)
+
+        st.subheader("🏆 Top 3 Replies")
+        top_replies = df[df["feedback"] == "positive"].head(3)
+        for _, r in top_replies.iterrows():
+            st.markdown(f"✅ “{r['agent_reply']}”")
+
+        st.subheader("❌ Bottom 3 Replies")
+        bottom_replies = df[df["feedback"] == "negative"].head(3)
+        for _, r in bottom_replies.iterrows():
+            st.markdown(f"❌ “{r['agent_reply']}”")
+    else:
+        st.info("No complaints submitted yet.")
