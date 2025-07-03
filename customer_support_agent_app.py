@@ -96,7 +96,7 @@ with tab2:
     if not df.empty:
         feedback_counts = df["feedback"].value_counts()
         if not feedback_counts.empty:
-            fig, ax = plt.subplots(figsize=(3, 3))
+            fig, ax = plt.subplots(figsize=(2.5, 2.5))
             ax.pie(feedback_counts.values, labels=feedback_counts.index, autopct='%1.1f%%', startangle=90)
             ax.axis('equal')
             st.pyplot(fig)
