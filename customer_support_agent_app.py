@@ -62,7 +62,7 @@ if user_id and complaint:
             st.success("Reply logged successfully.")
             st.markdown(f"**AI Reply:** {edited_reply}")
             del st.session_state.generated_reply  # Clear for next round
-
+    
     # 👍👎 feedback inside Chat tab only
     st.markdown("---")
     st.markdown("### 🤔 Was this reply helpful?")
@@ -75,6 +75,7 @@ if user_id and complaint:
             last_reply["escalated"] = True
             st.warning("We appreciate your honesty. Logged as unhelpful.")
 
+            
 
 
 with tab2:
