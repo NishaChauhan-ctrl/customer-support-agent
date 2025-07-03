@@ -50,16 +50,19 @@ with tab1:
         complaint = st.text_area("Describe your issue")
         tone = st.selectbox("Select Tone", ["neutral", "friendly", "formal", "apologetic"])
 
-        if st.button("Generate AI Reply"):
-            if user_id and complaint:
-                response = generate_response(complaint, tone)
-                edited_reply = st.text_area("Edit Reply (optional)", value=response, key="editable_reply")
-                if st.button("Confirm & Log Reply"):
-                    log_complaint(user_id, complaint, edited_reply)
-                    st.success("Reply logged successfully.")
-                    st.markdown(f"**AI Reply:** {edited_reply}")
-            else:
-                st.warning("Please enter both user ID and complaint.")
+if user_id and complaint:
+    if st.button("Generate AI Reply"):
+        st.session_state.generated_reply = generate_response(complaint, tone)
+    
+    if "generated_reply" in st.session_state:
+        edited_reply = st.text_area("Edit Reply (optional)", value=st.session_state.generated_reply, key="editable_reply")
+
+        if st.button("Confirm & Log Reply"):
+            log_complaint(user_id, complaint, edited_reply)
+            st.success("Reply logged successfully.")
+            st.markdown(f"**AI Reply:** {edited_reply}")
+            del st.session_state.generated_reply  # Clear for next round
+
 
 with tab2:
     st.subheader("📊 Agent Feedback Summary")
