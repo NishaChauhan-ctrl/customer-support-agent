@@ -63,6 +63,19 @@ if user_id and complaint:
             st.markdown(f"**AI Reply:** {edited_reply}")
             del st.session_state.generated_reply  # Clear for next round
 
+    # 👍👎 feedback inside Chat tab only
+    st.markdown("---")
+    st.markdown("### 🤔 Was this reply helpful?")
+    if st.session_state.feedback_log:
+        last_reply = st.session_state.feedback_log[-1]
+        if st.button("👍 Helpful"):
+            last_reply["escalated"] = False
+            st.success("Thanks for your feedback!")
+        if st.button("👎 Unhelpful"):
+            last_reply["escalated"] = True
+            st.warning("We appreciate your honesty. Logged as unhelpful.")
+
+
 
 with tab2:
     st.subheader("📊 Agent Feedback Summary")
@@ -105,14 +118,4 @@ with tab3:
         else:
             st.error("CSV must contain 'user_id' and 'text' columns.")
 
-# 👍👎 feedback
-st.markdown("---")
-st.markdown("### 🤔 Was this reply helpful?")
-if st.session_state.feedback_log:
-    last_reply = st.session_state.feedback_log[-1]
-    if st.button("👍 Helpful"):
-        last_reply["escalated"] = False
-        st.success("Thanks for your feedback!")
-    if st.button("👎 Unhelpful"):
-        last_reply["escalated"] = True
-        st.warning("We appreciate your honesty. Logged as unhelpful.")
+
