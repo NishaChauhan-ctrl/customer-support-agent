@@ -5,7 +5,38 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import uuid
 
-st.set_page_config(page_title="SupportGenie", layout="wide")
+st.set_page_config(page_title="SupportGenie", page_icon="🧞", layout="wide")
+
+# Inject custom CSS for color and branding
+st.markdown("""
+<style>
+    header {visibility: hidden;}
+    .reportview-container .main footer {visibility: hidden;}
+    .main {
+        background-color: #f9fbfc;
+    }
+    .block-container {
+        padding-top: 2rem;
+    }
+    .supportgenie-footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        color: #888;
+        text-align: center;
+        padding: 10px;
+    }
+    .stButton>button {
+        border: 1px solid #ddd;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Branding header
+st.markdown("## 🧞‍♂️ SupportGenie")
+st.markdown("AI-powered complaint handling agent with escalation memory and tone control.")
 
 # Initialize session state
 if "user_memory" not in st.session_state:
@@ -40,8 +71,6 @@ def log_complaint(user_id, text, reply, escalated=False, keyword=None):
         st.session_state.user_memory[user_id] = []
     st.session_state.user_memory[user_id].append(entry)
 
-st.title("🧞 SupportGenie - AI Customer Support Agent")
-
 tab1, tab2, tab3 = st.tabs(["🤖 Chat Interface", "📊 Feedback Stats", "📁 Batch Processor"])
 
 with tab1:
@@ -50,20 +79,19 @@ with tab1:
         complaint = st.text_area("Describe your issue")
         tone = st.selectbox("Select Tone", ["neutral", "friendly", "formal", "apologetic"])
 
-if user_id and complaint:
-    if st.button("Generate AI Reply"):
-        st.session_state.generated_reply = generate_response(complaint, tone)
-    
-    if "generated_reply" in st.session_state:
-        edited_reply = st.text_area("Edit Reply (optional)", value=st.session_state.generated_reply, key="editable_reply")
+        if user_id and complaint:
+            if st.button("Generate AI Reply"):
+                st.session_state.generated_reply = generate_response(complaint, tone)
 
-        if st.button("Confirm & Log Reply"):
-            log_complaint(user_id, complaint, edited_reply)
-            st.success("Reply logged successfully.")
-            st.markdown(f"**AI Reply:** {edited_reply}")
-            del st.session_state.generated_reply  # Clear for next round
-    
-    # 👍👎 feedback inside Chat tab only
+            if "generated_reply" in st.session_state:
+                edited_reply = st.text_area("Edit Reply (optional)", value=st.session_state.generated_reply, key="editable_reply")
+
+                if st.button("Confirm & Log Reply"):
+                    log_complaint(user_id, complaint, edited_reply)
+                    st.success("Reply logged successfully.")
+                    st.markdown(f"**AI Reply:** {edited_reply}")
+                    del st.session_state.generated_reply
+
     st.markdown("---")
     st.markdown("### 🤔 Was this reply helpful?")
     if st.session_state.feedback_log:
@@ -75,25 +103,18 @@ if user_id and complaint:
             last_reply["escalated"] = True
             st.warning("We appreciate your honesty. Logged as unhelpful.")
 
-            
-
-
 with tab2:
     st.subheader("📊 Agent Feedback Summary")
-
     log_df = pd.DataFrame(st.session_state.feedback_log)
     if not log_df.empty:
         feedback_counts = log_df["escalated"].map({True: "Unhelpful", False: "Helpful"}).value_counts()
-
-        # Place pie chart in small column
         with st.container():
             col1, col2 = st.columns([1, 2])
             with col1:
-                fig, ax = plt.subplots()
+                fig, ax = plt.subplots(figsize=(4, 4))
                 ax.pie(feedback_counts.values, labels=feedback_counts.index, autopct='%1.1f%%', startangle=90)
-                ax.axis('equal')
+                ax.axis("equal")
                 st.pyplot(fig)
-
             with col2:
                 top_replies = log_df[~log_df["escalated"]].dropna().head(3)
                 worst_replies = log_df[log_df["escalated"]].dropna().head(3)
@@ -119,4 +140,5 @@ with tab3:
         else:
             st.error("CSV must contain 'user_id' and 'text' columns.")
 
-
+# Footer
+st.markdown('<div class="supportgenie-footer">🔧 Built with ❤️ by Nisha | SupportGenie © 2025</div>', unsafe_allow_html=True)
